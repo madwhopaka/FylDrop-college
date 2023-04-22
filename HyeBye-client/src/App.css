@@ -1,0 +1,647 @@
+.App {
+  display: flex;
+  font-family: "Poppins", sans-serif;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.popup {
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  height: 40%;
+  border: 0.1rem solid #575757;
+  border-radius: 15px;
+  background-color: white;
+  width: 30%;
+}
+
+.user-grid {
+  justify-content: center;
+  align-items: center;
+}
+
+.outer-avatar {
+  width: 60px;
+  height: 60px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 100% !important ;
+  background: linear-gradient(to right, #fcb045, #fd1d1d, #833ab4);
+}
+
+.avatar-circle {
+  width: 50px;
+  height: 50px;
+  margin: 10px;
+  cursor: pointer;
+  border: 5px solid;
+  border-image-slice: 1;
+  border-radius: 100% !important ;
+  border-width: 2px;
+}
+
+.inner-avatar {
+  height: 90%;
+  width: 90%;
+  background: white;
+  border-radius: 100%;
+}
+
+.border-gradient-purple {
+  border-radius: 20px;
+  border-radius: 100% !important ;
+  border-image-source: linear-gradient(to left, #743ad5, #d53a9d);
+}
+
+.upload-containeri {
+  margin: 15px;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px 15px;
+  outline: none;
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #833ab4; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #fcb045, #fd1d1d, #833ab4);
+  background: linear-gradient(159deg, #fcb045, #fd1d1d, #833ab4);
+}
+
+.center-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+.btnn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  background: #833ab4; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #fcb045,
+    #fd1d1d,
+    #833ab4
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #fcb045,
+    #fd1d1d,
+    #833ab4
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  font-family: "Poppins", sans-serif;
+  color: white;
+  font-size: 20px;
+  padding: 5px 20px;
+  background-color: white;
+  outline: none;
+  border: none;
+  border-radius: 30px;
+}
+
+.btnn:hover {
+  background: #fe8c00; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #f83600,
+    #fe8c00
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #f83600,
+    #fe8c00
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */ /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+.logohead {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.heading {
+  text-align: center;
+  margin-left: 50px;
+  justify-content: center;
+}
+
+.title {
+  font-family: "Poppins", sans-serif;
+  font-size: 60px;
+  background-color: #d4418e;
+  background-image: linear-gradient(315deg, #d4418e 0%, #0652c5 74%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0px;
+}
+
+.sub-title {
+  font-family: "Poppins", sans-serif;
+  color: rgb(66, 66, 66);
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;1,300;1,600&family=Roboto:wght@100;300&display=swap");
+
+.logo {
+  height: 200px;
+  width: 200px;
+}
+
+.image-cont {
+  margin-right: 50px;
+}
+
+.mode-logo {
+  height: 50px;
+  width: 50px;
+}
+
+.theme-button {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-logo {
+  height: 80px;
+  width: 80px;
+}
+
+.login-card {
+  height: 400px;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.logospace {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-subs {
+  font-size: 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+.login-input {
+  width: 250px;
+  padding: 10px 10px;
+  outline: none;
+  border: 1px solid grey;
+  margin-right: 10px;
+  border-radius: 15px;
+  box-shadow: 5px 10px slateblue;
+  font-size: 15px;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+
+.create-button {
+  margin-top: 30px;
+  padding: 10px;
+  width: 100px;
+  border-radius: 20px;
+  border: none;
+  background-color: #7f53ac;
+  background-image: linear-gradient(315deg, #7f53ac 0%, #647dee 74%);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  font-size: 15px;
+  color: white;
+  transition: 0.2s ease-in;
+}
+
+.create-button:hover {
+  background-color: #7f53ac;
+  background-image: linear-gradient(159deg, #7f53ac 40%, #09c6f9 34%);
+}
+
+.create-button:active {
+  background-color: #2a2a72;
+  background-image: linear-gradient(159deg, #7f53ac 40%, #09c6f9 34%);
+  transform: scale(1.1);
+}
+
+.eror-div {
+  font-family: "Poppins", sans-serif;
+  transition-property: display;
+  transition-duration: 0.5s ease-in;
+  border-radius: 10px;
+  color: #ff4757;
+}
+
+.loading-status {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 50px;
+}
+
+.simpletext {
+  font-family: "Poppins", sans-serif;
+}
+
+.avatar {
+  font-size: 100px;
+}
+
+.text-container {
+  width: 300px;
+  margin-bottom: 30px;
+}
+
+.create-join-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  background: #833ab4; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #fcb045,
+    #fd1d1d,
+    #833ab4
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #fcb045,
+    #fd1d1d,
+    #833ab4
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  font-family: "Poppins", sans-serif;
+  color: white;
+  font-size: 17px;
+  padding: 5px 10px;
+  background-color: white;
+  outline: none;
+  border: none;
+  border-radius: 30px;
+  transition: 0.2s ease-in;
+}
+
+.create-join-btn:hover {
+  background: #fe8c00; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    159deg,
+    #f83600,
+    #fe8c00
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    159deg,
+    #f83600,
+    #fe8c00
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */ /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+/* .create-join-btn:active {
+  background: #fe8c00;  
+  background: -webkit-linear-gradient(159deg, #f83600 50%, #fe8c00 70%);  
+  background: linear-gradient(159deg, #f83600, #fe8c00);
+  transform: scale(1.1);
+} */
+
+.createroom-comp {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.create-compo-text {
+  margin: 0px;
+  font-family: "Poppins", sans-serif;
+  font-size: medium;
+  color: rgb(68, 67, 67);
+}
+
+.join-room-component {
+  width: 400px;
+  margin: 0px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.join-button {
+  margin-top: 30px;
+  padding: 10px;
+  width: 100px;
+  border-radius: 20px;
+  border: none;
+  background-color: #7f53ac;
+  background-image: linear-gradient(315deg, #7f53ac 0%, #647dee 74%);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  font-size: 15px;
+  color: white;
+  transition: 0.2s ease-in;
+}
+
+.join-button:hover {
+  background-color: #7f53ac;
+  background-image: linear-gradient(159deg, #7f53ac 40%, #09c6f9 34%);
+}
+
+.join-button:active {
+  background-color: #2a2a72;
+  background-image: linear-gradient(159deg, #7f53ac 40%, #09c6f9 34%);
+  transform: scale(1.1);
+}
+
+.join-btn-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0px;
+}
+
+.normal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0px;
+  flex-direction: column;
+}
+
+.github-icon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 20px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 300px) {
+  .App {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .logohead {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .center-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo {
+    height: 100px;
+    width: 100px;
+  }
+
+  .title {
+    font-size: 40px;
+    margin-bottom: 0px;
+  }
+
+  .sub-title {
+    margin-right: 5px;
+    margin-top: 0px;
+    font-size: 12px;
+    color: grey;
+  }
+
+  .heading {
+    margin: 0px;
+  }
+
+  .btn-container {
+    justify-content: space-between;
+  }
+
+  .btnn {
+    margin-right: 10px;
+    padding: 5px 15px;
+    font-size: 20px;
+    transition: 0.2s ease-in;
+  }
+
+  .theme-button {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mode-logo {
+    height: 50px;
+    width: 50px;
+  }
+
+  .switch {
+    font-size: 10px;
+    height: 5px;
+    width: 10px;
+  }
+
+  .btnn:active {
+    transform: translateX(10px);
+  }
+
+  .login-card {
+    width: 180px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .App {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .logohead {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .center-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo {
+    height: 100px;
+    width: 100px;
+  }
+
+  .title {
+    font-size: 40px;
+    margin-bottom: 0px;
+  }
+
+  .sub-title {
+    margin-right: 5px;
+    margin-top: 0px;
+    font-size: 14px;
+    color: grey;
+  }
+
+  .heading {
+    margin: 0px;
+  }
+
+  .btn-container {
+    justify-content: space-between;
+    margin-top: 30px;
+  }
+
+  .btnn {
+    margin-right: 10px;
+    padding: 5px 15px;
+    font-size: 20px;
+    transition: 0.2s ease-in;
+  }
+
+  .theme-button {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mode-logo {
+    height: 50px;
+    width: 50px;
+  }
+
+  .switch {
+    font-size: 10px;
+    height: 5px;
+    width: 10px;
+  }
+
+  .btnn:active {
+    transform: translateX(10px);
+  }
+
+  .login-card {
+    width: 250px;
+  }
+
+  .eror-div {
+  }
+
+  .logospace {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-subs {
+    font-size: 16px;
+  }
+
+  .input-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .login-input {
+    width: 250px;
+    border: 1px solid grey;
+    font-size: 17px;
+    color: rgb(75, 69, 69);
+    margin-bottom: 10px;
+  }
+
+  .create-button {
+    border-radius: 20px;
+    padding: 10px;
+    width: 100px;
+    margin-top: 15px;
+    outline: none;
+    border: none;
+    color: white;
+    font-family: "Poppins", sans-serif;
+    font-size: 15px;
+    background-color: #7f53ac;
+    background-image: linear-gradient(315deg, #7f53ac 0%, #647dee 74%);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  }
+  .eror-div {
+    font-size: 14px;
+    margin-top: 5px;
+    width: 200px;
+    text-align: center;
+  }
+  .loading-container {
+    width: 150px;
+  }
+  .loading-status {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  .text-container {
+    width: 250px;
+  }
+
+  .create-compo-text {
+    margin: 0px;
+    font-family: "Poppins", sans-serif;
+    font-size: small;
+    color: rgb(68, 67, 67);
+  }
+
+  .join-room-component {
+    width: 330px;
+  }
+
+  .normal-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0px;
+    flex-direction: column;
+  }
+}
