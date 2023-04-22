@@ -96,7 +96,7 @@ io.on("connection", (socket) => {
       // update rooms state
       let peopleCount = roomState?.[data.code]?.count;
       roomState[data.code].count = peopleCount += 1;
-      userList.push(data.username);
+      userList?.push(data.username);
       roomState[data.code].users = userList;
       console.log("People count", roomState?.[data.code]);
       roomObj = roomState?.[data.code];
@@ -150,7 +150,11 @@ io.on("connection", (socket) => {
       let peopleCount = roomState?.[userroom[socket.id]]?.count;
       console.log("People", peopleCount);
       roomState[userroom[socket.id]].count = peopleCount -= 1;
-      userList.pop(users[socket.id]);
+      const index = userList.indexOf(users[socket.id]);
+      if (index > -1) {
+        // only splice array when item is found
+        userList.splice(index, 1); // 2nd parameter means remove one item only
+      }
       console.log("userroom[socket.id]", userroom[socket.id]);
       roomState[userroom[socket.id]].users = userList;
       console.log("People count", roomState?.[userroom[socket.id]]);
@@ -169,10 +173,17 @@ io.on("connection", (socket) => {
     const code = userroom?.[socket.id];
     var userList = roomState?.[code]?.users;
     console.log("UserList before leaving", userList, users[socket.id]);
-    const newList = userList?.pop(users[socket.id]);
-    const count = newList?.length;
+    const index =
+      userList != undefined || userList != null
+        ? userList.indexOf(users[socket.id])
+        : -1;
+    if (index > -1) {
+      // only splice array when item is found
+      userList.splice(index, 1); // 2nd parameter means remove one item only
+    }
+    const count = userList?.length;
     if (roomState?.[code]) {
-      roomState[code].users = newList;
+      roomState[code].users = userList;
       roomState[code].count = count;
     }
     io.in(`room${code}`).emit("userLeft", roomState?.[code]);
