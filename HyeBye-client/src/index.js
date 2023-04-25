@@ -11,6 +11,9 @@ import userListReducer from "./reducers/users.js";
 import codeReducer from "./reducers/code.js";
 import { BrowserRouter as Router } from "react-router-dom";
 
+import * as process from 'process';
+
+
 const store = configureStore({
   reducer: {
     code: codeReducer,
@@ -20,6 +23,10 @@ const store = configureStore({
     users: userListReducer,
   },
 });
+
+(window as any).global = window;
+(window as any).process = process;
+(window as any).Buffer = [];
 
 ReactDOM.render(
   <React.StrictMode>

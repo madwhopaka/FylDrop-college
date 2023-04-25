@@ -12,8 +12,10 @@ import Chat from "../Compo/Chat";
 import { setUsers } from "../reducers/users.js";
 import avatar from "../images/avatar.png";
 import { avtarArr } from "../utilites/arr";
+import streamSaver from "streamsaver";
 
 function JoinedRoom() {
+  const worker = new Worker("../worker.js");
   const [userName, setUserName] = useState("");
   const user = useSelector((state) => state.user);
   const users = useSelector((state) => state.users);
@@ -28,9 +30,13 @@ function JoinedRoom() {
   //refs
   var peerRef = React.useRef();
   var hiddenFileInput = React.useRef(null);
+  const peersRef = React.useRef([]);
+  const fileNameRef = React.useRef("");
 
   // files ;
-  const [file, setFile] = useState(null);
+  const [connectionEstablished, setConnection] = useState(false);
+  const [file, setFile] = useState();
+  const [gotFile, setGotFile] = useState(false);
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -51,6 +57,21 @@ function JoinedRoom() {
     const peers = Users.filter((userName) => userName !== user.value.username);
     setPeerList(peers);
   };
+
+  useEffect(() => {
+    socket.on("all users", (users) => {
+      peerRef.current = createPeer(users[0], socket.id);
+    });
+
+    socket.on("user joined", (payload) => {
+      peerRef.current = addPeer(payload.signal, payload.callerID);
+    });
+
+    socket.on("receiving returned signal", (payload) => {
+      peerRef.current.signal(payload.signal);
+      setConnection(true);
+    });
+  }, []);
 
   useEffect(() => {
     const data = {
@@ -99,19 +120,6 @@ function JoinedRoom() {
     setUserName(user.value.username);
     if (!user.value.username && !roomcode.value.code) {
       nav("/", { replace: true });
-    } else {
-      socket.on("all users", (users) => {
-        peerRef.current = createPeer(users[0], socket.id);
-      });
-
-      socket.on("user joined", (payload) => {
-        peerRef.current = addPeer(payload.signal, payload.callerID);
-      });
-
-      socket.on("receiving returned signal", (payload) => {
-        peerRef.current.signal(payload.signal);
-        // setConnection(true);
-      });
     }
   }, []);
 
@@ -130,21 +138,99 @@ function JoinedRoom() {
     }, 1500);
   };
 
-  const createPeer = () => {};
+  function createPeer(userToSignal, callerID) {
+    const peer = new Peer({
+      initiator: true,
+      trickle: false,
+    });
 
-  const addPeer = () => {};
+    peer.on("signal", (signal) => {
+      socket.emit("sending signal", {
+        userToSignal,
+        callerID,
+        signal,
+      });
+    });
+
+    peer.on("data", handleReceivingData);
+
+    return peer;
+  }
+
+  function addPeer(incomingSignal, callerID) {
+    const peer = new Peer({
+      initiator: false,
+      trickle: false,
+    });
+
+    peer.on("signal", (signal) => {
+      socket.emit("returning signal", { signal, callerID });
+    });
+
+    peer.on("data", handleReceivingData);
+
+    peer.signal(incomingSignal);
+    setConnection(true);
+    return peer;
+  }
+
+  function handleReceivingData(data) {
+    if (data.toString().includes("done")) {
+      setGotFile(true);
+      const parsed = JSON.parse(data);
+      fileNameRef.current = parsed.fileName;
+    } else {
+      worker.postMessage(data);
+    }
+  }
+
+  function download() {
+    setGotFile(false);
+    worker.postMessage("download");
+    worker.addEventListener("message", (event) => {
+      const stream = event.data.stream();
+      const fileStream = streamSaver.createWriteStream(fileNameRef.current);
+      stream.pipeTo(fileStream);
+    });
+  }
+
+  function sendFile() {
+    const peer = peerRef.current;
+    const stream = file.stream();
+    const reader = stream.getReader();
+
+    reader.read().then((obj) => {
+      handlereading(obj.done, obj.value);
+    });
+
+    function handlereading(done, value) {
+      if (done) {
+        peer.write(JSON.stringify({ done: true, fileName: file.name }));
+        return;
+      }
+
+      peer.write(value);
+      reader.read().then((obj) => {
+        handlereading(obj.done, obj.value);
+      });
+    }
+  }
 
   return (
     <div className="normal-container">
       <div style={{ fontWeight: 600 }}>Room : {roomcode.value.code}</div>
-      <SendFilePopup
-        peerList={peerList}
-        setFile={setFile}
-        file={file}
-        handleClick={handleClick}
-        userCount={userCount}
-      />
-      {userCount > 1 ? (
+      {file != null ? (
+        <SendFilePopup
+          peerList={peerList}
+          setFile={setFile}
+          file={file}
+          handleClick={handleClick}
+          userCount={userCount}
+        />
+      ) : (
+        <div></div>
+      )}
+      {userCount > 1 && connectionEstablished === true ? (
         <>
           <div
             className="center-div"
@@ -274,30 +360,11 @@ function JoinedRoom() {
       <Loading />
     </div>
   );
-
-  const sendFile = () => {
-    const stream = file.stream();
-    const reader = stream.getReader();
-    reader.read().then((obj) => {
-      handleReading(obj.done, obj.value);
-    });
-
-    const handleReading = (done, value) => {
-      if (done) {
-        // peer.write(JSON.stringify({done:true, fileName:file.name }))
-      }
-      // peer.write(value) ;
-      reader.read((obj) => {
-        handleReading(obj.done, obj.value);
-      });
-    };
-  };
 }
 
 export default JoinedRoom;
 
 const SendFilePopup = ({ file, peerList, userCount, handleClick, setFile }) => {
-  console.log(file);
   return (
     <div
       style={{

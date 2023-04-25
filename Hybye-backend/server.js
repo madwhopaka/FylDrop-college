@@ -38,7 +38,7 @@ app.use("/api/room/validate", validate.router);
 app.use("/api/username", username.router);
 
 const server = app.listen(PORT, () => {
-  console.log(`Listening to the port on 192.168.0.104: ${PORT}`);
+  console.log(`Listening to the port on localhost: ${PORT}`);
 });
 
 var users = [];
@@ -47,6 +47,8 @@ var userroom = [];
 var usersCount = [];
 var rooms = [];
 var roomObj = [];
+const usersp = {};
+const socketToRoom = {};
 console.log(process.env.ALLOWED_CLIENTS.split(","));
 const io = new Server(server, {
   cors: {
@@ -55,38 +57,20 @@ const io = new Server(server, {
   },
 });
 
-// function increateCount(code) {
-//   if (rooms.indexOf(code) == -1) {
-//     rooms.push(code);
-//   }
-
-//   var roomNumber = rooms.indexOf(code);
-//   console.log(roomNumber);
-//   var count = usersCount[roomNumber];
-//   if (count == undefined) usersCount[roomNumber] = 1;
-//   else usersCount[roomNumber]++;
-//   console.log(usersCount[roomNumber]);
-
-//   return usersCount[roomNumber];
-// }
-
-// function decreaseCount(code) {
-//   if (rooms.indexOf(code) != -1) {
-//     var roomNumber = rooms.indexOf(code);
-//     var count = usersCount[roomNumber];
-//     if (count != undefined) usersCount[roomNumber]--;
-
-//     return usersCount[roomNumber];
-//   }
-// }
-
 io.on("connection", (socket) => {
-  socket.emit("connected", {});
-
   socket.on("join-room", (data) => {
     users[socket.id] = data.username;
-    colors[socket.id] = colorArray[Math.floor(Math.random() * leng)];
     userroom[socket.id] = data.code;
+    if (usersp[data.code]) {
+      const length = usersp[data.code].length;
+      usersp[data.code].push(socket.id);
+    } else {
+      usersp[data.code] = [socket.id];
+    }
+    socketToRoom[socket.id] = data.code;
+    const usersInThisRoom = usersp[data.code].filter((id) => id !== socket.id);
+
+    socket.emit("all users", usersInThisRoom);
     // check if user already there before increasing count and updating list
     let userList = roomState?.[data.code]?.users;
     if (
@@ -104,16 +88,6 @@ io.on("connection", (socket) => {
       socket.join("room" + userroom[socket.id]);
       io.in(`room${userroom[socket.id]}`).emit("updateState", roomObj);
     }
-
-    // console.log(`${users[socket.id]}, joined the room${data.code}`);
-    // const returnData = {
-    //   message: `${data.username} joined the chat`,
-    //   side: "middle",
-    //   color: "",
-    //   from: "server",
-    // };
-    // console.log(socket.rooms.has(`room${data.code}`));
-    // socket.to(`room${userroom[socket.id]}`).emit("others-joined", returnData);
   });
 
   socket.on("sending signal", (payload) => {
@@ -128,14 +102,6 @@ io.on("connection", (socket) => {
       signal: payload.signal,
       id: socket.id,
     });
-  });
-
-  socket.on("send_message", (data) => {
-    console.log(colors[socket.id]);
-    data.color = colors[socket.id];
-    data.from = users[socket.id];
-    console.log(data);
-    socket.to(`room${data.room}`).emit("receive_message", data);
   });
 
   socket.on("leaving", (payload) => {
@@ -186,8 +152,60 @@ io.on("connection", (socket) => {
       roomState[code].users = userList;
       roomState[code].count = count;
     }
+
+    const roomID = socketToRoom[socket.id];
+    let room = usersp[roomID];
+    if (room) {
+      room = room.filter((id) => id !== socket.id);
+      usersp[roomID] = room;
+      socket.broadcast.emit("user left", socket.id);
+    }
+
     io.in(`room${code}`).emit("userLeft", roomState?.[code]);
     socket.leaveAll();
     console.log("Socket left", users[socket.id]);
   });
 });
+
+// function increateCount(code) {
+//   if (rooms.indexOf(code) == -1) {
+//     rooms.push(code);
+//   }
+
+//   var roomNumber = rooms.indexOf(code);
+//   console.log(roomNumber);
+//   var count = usersCount[roomNumber];
+//   if (count == undefined) usersCount[roomNumber] = 1;
+//   else usersCount[roomNumber]++;
+//   console.log(usersCount[roomNumber]);
+
+//   return usersCount[roomNumber];
+// }
+
+// function decreaseCount(code) {
+//   if (rooms.indexOf(code) != -1) {
+//     var roomNumber = rooms.indexOf(code);
+//     var count = usersCount[roomNumber];
+//     if (count != undefined) usersCount[roomNumber]--;
+
+//     return usersCount[roomNumber];
+//   }
+// }
+
+// console.log(`${users[socket.id]}, joined the room${data.code}`);
+// const returnData = {
+//   message: `${data.username} joined the chat`,
+//   side: "middle",
+//   color: "",
+//   from: "server",
+// };
+// console.log(socket.rooms.has(`room${data.code}`));
+// socket.to(`room${userroom[socket.id]}`).emit("others-joined", returnData);
+
+// socket.on("send_message", (data) => {
+//   console.log(colors[socket.id]);
+//   data.color = colors[socket.id];
+//   data.from = users[socket.id];
+//   console.log(data);
+//   socket.to(`room${data.room}`).emit("receive_message", data);
+// });
