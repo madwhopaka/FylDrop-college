@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import app_logo from "../images/output.gif";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,6 +15,37 @@ function LandPage() {
   const dispatch = useDispatch();
   const host = "http://192.168.0.104:8000";
   const url = `${host}/api/username`;
+
+  useEffect(() => {
+    //  handleLogout() ;
+  }, []);
+
+  useEffect(() => {
+    // Define the 'otpless' function
+    window.otpless = (otplessUser) => {
+      const waName = otplessUser.waName;
+      const waNumber = otplessUser.waNumber;
+      dispatch(userChange({ username: waName }));
+      setTimeout(() => {
+        dispatch(setLoading({ loadingvalue: false, loadingtext: "" }));
+        nav("/room");
+      }, 1000);
+    };
+  }, []);
+
+  // const handleLogout = () => {
+  //   const scripts = document.getElementsByTagName("script");
+  //   for (let i = 0; i < scripts.length; i++) {
+  //     if (scripts[i].src.includes("otpless.com/auth.js")) {
+  //       console.log(scripts[i]);
+  //       scripts[i].parentNode.removeChild(scripts[i]);
+  //       break;
+  //     }
+  //   }
+  //   localStorage.clear();
+  //   window.location.reload(true);
+  //   window.sessionStorage.clear();
+  // };
 
   const handleClick = async (event) => {
     dispatch(

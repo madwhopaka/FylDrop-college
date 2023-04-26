@@ -13,6 +13,7 @@ import { avtarArr } from "../utilites/arr";
 import streamSaver from "streamsaver";
 import Peer from "simple-peer";
 import avatar from "../images/avatar.png";
+import plane from "../images/plane.png";
 import cancel from "../images/cancel.png";
 import { WhatsappIcon, WhatsappShareButton } from "react-share";
 import { recomposeColor } from "@mui/material";
@@ -31,6 +32,8 @@ function JoinedRoom() {
   const [userCount, setUserCount] = useState(users.value.count);
   const [messageList, setMessagesList] = useState([]);
   const [copyText, setCopyText] = useState(false);
+  const [message, setMessage] = useState("");
+  const [short, setShort] = useState({});
 
   //refs
   var peerRef = React.useRef();
@@ -43,6 +46,7 @@ function JoinedRoom() {
   const [file, setFile] = useState(null);
   const [receivedFile, setReceived] = useState({});
   const [gotFile, setGotFile] = useState(false);
+  const [desc, setDesc] = useState("");
 
   const handleChange = (e) => {
     e.preventDefault();
@@ -51,6 +55,10 @@ function JoinedRoom() {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
+  };
+
+  const handleInputChange = (event) => {
+    setDesc(event.target.value);
   };
 
   const handleClick = async (event) => {
@@ -99,6 +107,7 @@ function JoinedRoom() {
       setFile(null);
       setGotFile(true);
       console.log("Do you want to receive the file", data);
+      setShort(data.message);
       setReceived({ file: data.file, fileName: data.fileName });
     });
 
@@ -231,8 +240,9 @@ function JoinedRoom() {
     dispatch(
       setLoading({ loadingvalue: true, loadingtext: "Sending File..." })
     );
-    console.log("upload file", file);
-    socket.emit("upload", file, file.name, (status) => {
+    console.log("upload file", file, desc);
+    const message = { desc: desc, sender: userName };
+    socket.emit("upload", file, file.name, message, (status) => {
       console.log(status);
       setFile(null);
       dispatch(setLoading({ loadingvalue: false, loadingtext: "" }));
@@ -276,6 +286,7 @@ function JoinedRoom() {
 
   return (
     <div className="normal-container">
+      <ChatButton message={message} setMessage={setMessage} />
       <RoomDetails roomcode={roomcode} copy={copy} />
       {
         <div
@@ -311,6 +322,26 @@ function JoinedRoom() {
             <img src={cancel} height={25} width={25} alt="cancel icon" />
           </div>
           <div>You have an incoming file request?</div>
+          <div
+            className="center-div"
+            style={{ textAlign: "center", color: "slateblue", fontWeight: 600 }}
+          >
+            File: {receivedFile.fileName}
+          </div>
+          <div style={{ textAlign: "center", paddingTop: 15, fontSize: 12 }}>
+            {short?.sender} said
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              margin: 0,
+              fontSize: 12,
+              color: "slateblue",
+              fontWeight: 600,
+            }}
+          >
+            {short?.desc}
+          </div>
           <button
             style={{ marginTop: 20, fontSize: 14, paddingLeft: 10 }}
             className="create-join-btn"
@@ -327,6 +358,8 @@ function JoinedRoom() {
           file={file}
           uploadFile={uploadFile}
           handleClick={handleClick}
+          handleInputChange={handleInputChange}
+          desc={desc}
           userCount={userCount}
           theme={theme}
         />
@@ -468,12 +501,54 @@ function JoinedRoom() {
 
 export default JoinedRoom;
 
+const ChatButton = ({ message, setMessage }) => {
+  const [chatInput, setChatInput] = useState(false);
+
+  return (
+    <div
+      className={chatInput === false ? "float-button" : "float-button-active"}
+    >
+      <input
+        value={message}
+        onChange={(event) => setMessage(event.target.value)}
+        placeholder="Message"
+        style={{
+          display: chatInput === true ? "flex" : "none",
+          flexDirection: "column",
+          width: "80%",
+          height: "90%",
+          cursor: "pointer",
+          fontSize: 16,
+          outline: "none",
+          border: "none",
+        }}
+      />
+      <img
+        id="plane"
+        src={plane}
+        height={30}
+        width={30}
+        onClick={() => {
+          if (chatInput === true) {
+            console.log(message);
+            setChatInput(false);
+            setMessage("");
+          } else setChatInput(true);
+        }}
+        alt="chat-button"
+      />
+    </div>
+  );
+};
+
 const SendFilePopup = ({
   file,
   peerList,
   userCount,
   uploadFile,
   setFile,
+  handleInputChange,
+  desc,
   theme,
 }) => {
   return (
@@ -529,6 +604,14 @@ const SendFilePopup = ({
             );
           })}
         </div>
+        <div style={{ textAlign: "left" }} className="input-container">
+          <textarea
+            type="text"
+            className="desc-input"
+            placeholder="Short Message"
+            onChange={handleInputChange}
+          ></textarea>
+        </div>
         <div
           style={{
             display: "flex",
@@ -538,14 +621,14 @@ const SendFilePopup = ({
           }}
         >
           <button
-            style={{ marginRight: 10 }}
+            style={{ marginRight: 10, marginTop: 10 }}
             className="create-button"
             onClick={() => setFile(null)}
           >
             Cancel
           </button>
           <button
-            style={{ marginLeft: 10 }}
+            style={{ marginLeft: 10, marginTop: 10 }}
             className="create-button"
             onClick={() => {
               console.log("hello");

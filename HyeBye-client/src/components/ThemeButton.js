@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Switch from "@mui/material/Switch";
 
-import {  useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import mode from "../images/moon.png";
 import "../App.css";
-import {themeChange} from '../reducers/theme.js' ; 
-import {useDispatch} from 'react-redux' ;
-
+import { themeChange } from "../reducers/theme.js";
+import { useDispatch } from "react-redux";
 
 function ThemeButton() {
   const black = "#28282B";
-  const white = "white" ; 
-  const dispatch = useDispatch() ; 
+  const white = "white";
+  const dispatch = useDispatch();
   const [checked, setCheck] = useState(false);
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("sm"));
@@ -21,25 +20,19 @@ function ThemeButton() {
     if (matches) {
       setIconSize("medium");
     }
-  },[matches]);
+  }, [matches]);
   const handleChange = (event) => {
-    console.log(event) ; 
-    setCheck(event.target.checked) ; 
-    console.log(event.target.checked);
-    if (checked===false) {
-        console.log("this is me") ;     
-        dispatch(themeChange({color:black, bgcolor:white}));
-    }
-    else {
-        dispatch(themeChange({color:white, bgcolor:black})) ; 
+    setCheck(event.target.checked);
+    if (checked === false) {
+      dispatch(themeChange({ color: black, bgcolor: white }));
+    } else {
+      dispatch(themeChange({ color: white, bgcolor: black }));
     }
   };
 
-
-
   return (
     <div className="theme-button">
-      <img className="mode-logo" src={mode} alt= 'dark-mode-theme-logo' />
+      <img className="mode-logo" src={mode} alt="dark-mode-theme-logo" />
       <Switch
         className="switch"
         size={iconSize}
