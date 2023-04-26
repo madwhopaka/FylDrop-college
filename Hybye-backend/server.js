@@ -92,13 +92,13 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("upload", (file, fileName, callback) => {
-    console.log(file, fileName); // <Buffer 25 50 44 ...>
-
+  socket.on("upload", (file, fileName, message, callback) => {
+    console.log(file, fileName, message); // <Buffer 25 50 44 ...>
     // save the content to the disk, for example
     writeFile("/tmp/upload", file, (err) => {
       callback({ message: err ? "failure" : "success" });
-      socket.broadcast.emit("receive-file", { file, fileName });
+      socket.broadcast.emit("receive-flying-messages", message);
+      socket.broadcast.emit("receive-file", { file, fileName, message });
     });
   });
 
