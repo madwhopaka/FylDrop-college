@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import app_logo from "../images/output.gif";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useSelector, useDispatch } from "react-redux";
@@ -15,6 +15,20 @@ function LandPage() {
   const dispatch = useDispatch();
   const host = "https://fyldrop-college-production.up.railway.app";
   const url = `${host}/api/username`;
+
+  useEffect(() => {
+    // Define the 'otpless' function
+    console.log(window?.otpless);
+    window.otpless = (otplessUser) => {
+      const waName = otplessUser.waName;
+      const waNumber = otplessUser.waNumber;
+      dispatch(userChange({ username: waName }));
+      setTimeout(() => {
+        dispatch(setLoading({ loadingvalue: false, loadingtext: "" }));
+        nav("/room");
+      }, 1000);
+    };
+  }, []);
 
   const handleClick = async (event) => {
     dispatch(
