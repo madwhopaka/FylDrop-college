@@ -13,7 +13,7 @@ function LandPage() {
   const theme = useSelector((state) => state.theme);
   const nav = useNavigate();
   const dispatch = useDispatch();
-  const host = "http://192.168.0.104:8000";
+  const host = "https://fyldrop-college-production.up.railway.app";
   const url = `${host}/api/username`;
 
   const handleClick = async (event) => {

@@ -12,8 +12,8 @@ import axios from "axios";
 
 import "../App.css";
 
-// const host = "https://hybye-backend.herokuapp.com";
-const host = "http://192.168.0.104:8000";
+const host = "https://fyldrop-college-production.up.railway.app";
+// const host = "http://192.168.0.104:8000";
 const url = `${host}/api/username`;
 
 function Login() {

@@ -3,8 +3,10 @@ import React from "react";
 
 // const CONNECTION_PORT  = 'https://hybye-backend.herokuapp.com/';
 // const CONNECTION_PORT = process.env.REACT_APP_BASE_HOST;
-const CONNECTION_PORT = "http://192.168.0.104:8000";
+const CONNECTION_PORT = "https://fyldrop-college-production.up.railway.app";
 
-export const socket = io.connect("http://192.168.0.104:8000");
+export const socket = io.connect(
+  "https://fyldrop-college-production.up.railway.app"
+);
 export const SocketContext = React.createContext();
 export { CONNECTION_PORT };

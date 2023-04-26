@@ -15,7 +15,7 @@ import "../App.css";
 // const host = "https://hybye-backend.herokuapp.com";
 
 //change this according to the ip address of 192.168.0.104 for it to work on phones
-const host = "http://192.168.0.104:8000";
+const host = "https://fyldrop-college-production.up.railway.app";
 const url = `${host}/api/room/create`;
 function RoomPage() {
   const loaderDispatch = useDispatch();
