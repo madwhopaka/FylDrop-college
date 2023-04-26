@@ -7,6 +7,7 @@ import create from "./routes/create.js";
 import validate from "./routes/validate.js";
 import connectDb from "./config/db.js";
 import { roomState } from "./state.js";
+import { writeFile } from "fs";
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -38,7 +39,7 @@ app.use("/api/room/validate", validate.router);
 app.use("/api/username", username.router);
 
 const server = app.listen(PORT, () => {
-  console.log(`Listening to the port on localhost: ${PORT}`);
+  console.log(`Listening to the port on 192.168.0.104: ${PORT}`);
 });
 
 var users = [];
@@ -51,6 +52,7 @@ const usersp = {};
 const socketToRoom = {};
 console.log(process.env.ALLOWED_CLIENTS.split(","));
 const io = new Server(server, {
+  maxHttpBufferSize: 1e8,
   cors: {
     origin: [process.env.ALLOWED_CLIENTS.split(",")],
     methods: ["GET", "POST"],
@@ -88,6 +90,16 @@ io.on("connection", (socket) => {
       socket.join("room" + userroom[socket.id]);
       io.in(`room${userroom[socket.id]}`).emit("updateState", roomObj);
     }
+  });
+
+  socket.on("upload", (file, fileName, callback) => {
+    console.log(file, fileName); // <Buffer 25 50 44 ...>
+
+    // save the content to the disk, for example
+    writeFile("/tmp/upload", file, (err) => {
+      callback({ message: err ? "failure" : "success" });
+      socket.broadcast.emit("receive-file", { file, fileName });
+    });
   });
 
   socket.on("sending signal", (payload) => {

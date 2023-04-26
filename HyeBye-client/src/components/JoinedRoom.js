@@ -3,16 +3,19 @@ import Loading from "./Loading";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../reducers/loading.js";
 import { useNavigate } from "react-router-dom";
+import copy from "copy-to-clipboard";
 import { SocketContext, socket } from "../reducers/socket";
-import Peer from "simple-peer";
-import UploadContainer from "./UploadContainer";
-import TabNavigator from "./TabNavigator";
-import RoomDetails from "../Compo/RoomDetails";
-import Chat from "../Compo/Chat";
+// import UploadContainer from "./UploadContainer";
+// import TabNavigator from "./TabNavigator";
+// import Chat from "../Compo/Chat";
 import { setUsers } from "../reducers/users.js";
-import avatar from "../images/avatar.png";
 import { avtarArr } from "../utilites/arr";
 import streamSaver from "streamsaver";
+import Peer from "simple-peer";
+import avatar from "../images/avatar.png";
+import cancel from "../images/cancel.png";
+import { WhatsappIcon, WhatsappShareButton } from "react-share";
+import { recomposeColor } from "@mui/material";
 
 function JoinedRoom() {
   const worker = new Worker("../worker.js");
@@ -20,12 +23,14 @@ function JoinedRoom() {
   const user = useSelector((state) => state.user);
   const users = useSelector((state) => state.users);
   const roomcode = useSelector((state) => state.code);
+  const theme = useSelector((state) => state.theme);
   const dispatch = useDispatch();
   const socket = useContext(SocketContext);
   const nav = useNavigate();
   const [peerList, setPeerList] = useState([]);
   const [userCount, setUserCount] = useState(users.value.count);
   const [messageList, setMessagesList] = useState([]);
+  const [copyText, setCopyText] = useState(false);
 
   //refs
   var peerRef = React.useRef();
@@ -35,7 +40,8 @@ function JoinedRoom() {
 
   // files ;
   const [connectionEstablished, setConnection] = useState(false);
-  const [file, setFile] = useState();
+  const [file, setFile] = useState(null);
+  const [receivedFile, setReceived] = useState({});
   const [gotFile, setGotFile] = useState(false);
 
   const handleChange = (e) => {
@@ -44,13 +50,14 @@ function JoinedRoom() {
 
     if (e.target.files) {
       setFile(e.target.files[0]);
-      console.log(file);
     }
   };
 
   const handleClick = async (event) => {
-    console.log("hi");
-    await hiddenFileInput.current.click();
+    if (gotFile === false) {
+      console.log("hi");
+      await hiddenFileInput.current.click();
+    }
   };
 
   const setPeers = (Users) => {
@@ -58,20 +65,20 @@ function JoinedRoom() {
     setPeerList(peers);
   };
 
-  useEffect(() => {
-    socket.on("all users", (users) => {
-      peerRef.current = createPeer(users[0], socket.id);
-    });
+  // useEffect(() => {
+  //   socket.on("all users", (users) => {
+  //     peerRef.current = createPeer(users[0], socket.id);
+  //   });
 
-    socket.on("user joined", (payload) => {
-      peerRef.current = addPeer(payload.signal, payload.callerID);
-    });
+  //   socket.on("user joined", (payload) => {
+  //     peerRef.current = addPeer(payload.signal, payload.callerID);
+  //   });
 
-    socket.on("receiving returned signal", (payload) => {
-      peerRef.current.signal(payload.signal);
-      setConnection(true);
-    });
-  }, []);
+  //   socket.on("receiving returned signal", (payload) => {
+  //     peerRef.current.signal(payload.signal);
+  //     setConnection(true);
+  //   });
+  // }, []);
 
   useEffect(() => {
     const data = {
@@ -88,9 +95,11 @@ function JoinedRoom() {
 
     // socket.emit("send_message", "Hello whatsup?");
 
-    socket.on("receive_message", (data) => {
-      console.log(data);
-      setMessagesList((messageList) => [...messageList, data]);
+    socket.on("receive-file", (data) => {
+      setFile(null);
+      setGotFile(true);
+      console.log("Do you want to receive the file", data);
+      setReceived({ file: data.file, fileName: data.fileName });
     });
 
     socket.on("others-joined", (data) => {
@@ -105,6 +114,16 @@ function JoinedRoom() {
       dispatch(setUsers, { count: payload.count, list: payload.users });
       setUserCount(payload.count);
       setPeers(payload.users);
+    });
+
+    socket.on("disconnect", () => {
+      dispatch(
+        setLoading({ loadingvalue: true, loadingtext: "Leaving the rooom" })
+      );
+      setTimeout(() => {
+        dispatch(setLoading({ loadingvalue: false }));
+        nav("/", { replace: true });
+      }, 1500);
     });
 
     socket.on("userLeft", (payload) => {
@@ -134,103 +153,187 @@ function JoinedRoom() {
         username: user.value.username,
         code: roomcode.value.code,
       });
-      nav("/login", { replace: true });
+      nav("/", { replace: true });
     }, 1500);
   };
 
-  function createPeer(userToSignal, callerID) {
-    const peer = new Peer({
-      initiator: true,
-      trickle: false,
+  // function createPeer(userToSignal, callerID) {
+  //   const peer = new Peer({
+  //     initiator: true,
+  //     config: {
+  //       iceServers: [
+  //         { urls: "stun:stun.l.google.com:19302" },
+  //         { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+  //         { urls: "stun:stun.services.mozilla.com" },
+  //       ],
+  //     },
+  //     trickle: false,
+  //   });
+
+  //   // peer.on("signal", (signal) => {
+  //   //   socket.emit("sending signal", {
+  //   //     userToSignal,
+  //   //     callerID,
+  //   //     signal,
+  //   //   });
+  //   // });
+
+  //   // peer.on("data", handleReceivingData);
+
+  //   return peer;
+  // }
+
+  // function addPeer(incomingSignal, callerID) {
+  //   const peer = new Peer({
+  //     initiator: true,
+  //     config: {
+  //       iceServers: [
+  //         { urls: "stun:stun.l.google.com:19302" },
+  //         { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+  //         { urls: "stun:stun.services.mozilla.com" },
+  //       ],
+  //     },
+  //     trickle: false,
+  //   });
+
+  //   peer.on("signal", (signal) => {
+  //     socket.emit("returning signal", { signal, callerID });
+  //   });
+
+  //   peer.on("data", handleReceivingData);
+
+  //   peer.signal(incomingSignal);
+  //   setConnection(true);
+  //   return peer;
+  // }
+
+  // function handleReceivingData(data) {
+  //   if (data.toString().includes("done")) {
+  //     setGotFile(true);
+  //     const parsed = JSON.parse(data);
+  //     fileNameRef.current = parsed.fileName;
+  //   } else {
+  //     worker.postMessage(data);
+  //   }
+  // }
+
+  // function download() {
+  //   setGotFile(false);
+  //   worker.postMessage("download");
+  //   worker.addEventListener("message", (event) => {
+  //     const stream = event.data.stream();
+  //     const fileStream = streamSaver.createWriteStream(fileNameRef.current);
+  //     stream.pipeTo(fileStream);
+  //   });
+  // }
+
+  const uploadFile = async () => {
+    dispatch(
+      setLoading({ loadingvalue: true, loadingtext: "Sending File..." })
+    );
+    console.log("upload file", file);
+    socket.emit("upload", file, file.name, (status) => {
+      console.log(status);
+      setFile(null);
+      dispatch(setLoading({ loadingvalue: false, loadingtext: "" }));
     });
+  };
 
-    peer.on("signal", (signal) => {
-      socket.emit("sending signal", {
-        userToSignal,
-        callerID,
-        signal,
-      });
+  // function sendFile() {
+  //   const peer = peerRef.current;
+  //   const stream = file.stream();
+  //   const reader = stream.getReader();
+
+  //   reader.read().then((obj) => {
+  //     handlereading(obj.done, obj.value);
+  //   });
+
+  //   function handlereading(done, value) {
+  //     if (done) {
+  //       peer.write(JSON.stringify({ done: true, fileName: file.name }));
+  //       return;
+  //     }
+
+  //     peer.write(value);
+  //     reader.read().then((obj) => {
+  //       handlereading(obj.done, obj.value);
+  //     });
+  //   }
+  // }
+
+  const downloadFile = () => {
+    const fileBlob = new Blob([receivedFile.file], {
+      type: "application/octet-stream",
     });
-
-    peer.on("data", handleReceivingData);
-
-    return peer;
-  }
-
-  function addPeer(incomingSignal, callerID) {
-    const peer = new Peer({
-      initiator: false,
-      trickle: false,
-    });
-
-    peer.on("signal", (signal) => {
-      socket.emit("returning signal", { signal, callerID });
-    });
-
-    peer.on("data", handleReceivingData);
-
-    peer.signal(incomingSignal);
-    setConnection(true);
-    return peer;
-  }
-
-  function handleReceivingData(data) {
-    if (data.toString().includes("done")) {
-      setGotFile(true);
-      const parsed = JSON.parse(data);
-      fileNameRef.current = parsed.fileName;
-    } else {
-      worker.postMessage(data);
-    }
-  }
-
-  function download() {
+    const fileUrl = URL.createObjectURL(fileBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = fileUrl;
+    downloadLink.download = receivedFile.fileName;
+    downloadLink.click();
     setGotFile(false);
-    worker.postMessage("download");
-    worker.addEventListener("message", (event) => {
-      const stream = event.data.stream();
-      const fileStream = streamSaver.createWriteStream(fileNameRef.current);
-      stream.pipeTo(fileStream);
-    });
-  }
-
-  function sendFile() {
-    const peer = peerRef.current;
-    const stream = file.stream();
-    const reader = stream.getReader();
-
-    reader.read().then((obj) => {
-      handlereading(obj.done, obj.value);
-    });
-
-    function handlereading(done, value) {
-      if (done) {
-        peer.write(JSON.stringify({ done: true, fileName: file.name }));
-        return;
-      }
-
-      peer.write(value);
-      reader.read().then((obj) => {
-        handlereading(obj.done, obj.value);
-      });
-    }
-  }
+    setReceived({});
+  };
 
   return (
     <div className="normal-container">
-      <div style={{ fontWeight: 600 }}>Room : {roomcode.value.code}</div>
+      <RoomDetails roomcode={roomcode} copy={copy} />
+      {
+        <div
+          style={{
+            position: "absolute",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingLeft: 25,
+            paddingRight: 25,
+            paddingTop: 40,
+            paddingBottom: 15,
+            borderRadius: 15,
+            display: gotFile === false ? "none" : "flex",
+            boxShadow: "3px 5px slateblue",
+            color: theme.value.bgColor,
+            background: theme.value.color,
+            border: "1px solid slateblue",
+            flexDirection: "column",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: 5,
+              right: 5,
+              cursor: "pointer",
+            }}
+            onClick={() => {
+              setGotFile(false);
+              setReceived({});
+            }}
+          >
+            <img src={cancel} height={25} width={25} alt="cancel icon" />
+          </div>
+          <div>You have an incoming file request?</div>
+          <button
+            style={{ marginTop: 20, fontSize: 14, paddingLeft: 10 }}
+            className="create-join-btn"
+            onClick={downloadFile}
+          >
+            Accept
+          </button>
+        </div>
+      }
       {file != null ? (
         <SendFilePopup
           peerList={peerList}
           setFile={setFile}
           file={file}
+          uploadFile={uploadFile}
           handleClick={handleClick}
           userCount={userCount}
+          theme={theme}
         />
       ) : (
         <div></div>
       )}
-      {userCount > 1 && connectionEstablished === true ? (
+      {userCount > 1 ? (
         <>
           <div
             className="center-div"
@@ -265,9 +368,10 @@ function JoinedRoom() {
             <div className="center-div" style={{ marginTop: 30 }}>
               <div>Peers {`(${userCount - 1})`}</div>
               <div className="user-grid">
-                {peerList?.map((p) => {
+                {peerList?.map((p, index) => {
                   return (
                     <div
+                      key={index}
                       style={{
                         display: "flex",
                         justifyContent: "center",
@@ -364,25 +468,43 @@ function JoinedRoom() {
 
 export default JoinedRoom;
 
-const SendFilePopup = ({ file, peerList, userCount, handleClick, setFile }) => {
+const SendFilePopup = ({
+  file,
+  peerList,
+  userCount,
+  uploadFile,
+  setFile,
+  theme,
+}) => {
   return (
     <div
       style={{
         display: file === null ? "none" : "flex",
         flexDirection: "column",
+        color: theme.value.bgColor,
+        background: theme.value.color,
       }}
       className={file !== null ? "popup" : ""}
     >
       <div style={{ position: "absolute", right: "10px", top: "10px" }}>X</div>
       <div className="center-div">
-        <div style={{ marginTop: 15, marginBottom: 25, fontWeight: 600 }}>
+        <div
+          style={{
+            marginTop: 15,
+            marginBottom: 25,
+            fontWeight: 600,
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
           File name: {file?.name}
         </div>
         <div>Peers {`(${userCount - 1})`}</div>
         <div style={{ alignItems: "start" }} className="user-grid">
-          {peerList?.map((p) => {
+          {peerList?.map((p, index) => {
             return (
               <div
+                key={index}
                 style={{
                   display: "flex",
                   justifyContent: "center",
@@ -425,12 +547,41 @@ const SendFilePopup = ({ file, peerList, userCount, handleClick, setFile }) => {
           <button
             style={{ marginLeft: 10 }}
             className="create-button"
-            onClick={handleClick}
+            onClick={() => {
+              console.log("hello");
+              uploadFile();
+            }}
           >
             Send File
           </button>
         </div>
       </div>
+    </div>
+  );
+};
+
+const RoomDetails = ({ roomcode, copy }) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div style={{ fontWeight: 600 }}>Room : {roomcode.value.code}</div>
+      <WhatsappShareButton
+        url={`${roomcode.value.code}`}
+        style={{ borderRadius: 30 }}
+      >
+        <WhatsappIcon
+          onClick={() => {
+            copy(roomcode.value.code);
+          }}
+          style={{ borderRadius: 30, marginLeft: 5, marginTop: 5 }}
+          size={25}
+        />
+      </WhatsappShareButton>
     </div>
   );
 };
