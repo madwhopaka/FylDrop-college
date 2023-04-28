@@ -43,6 +43,11 @@ function JoinedRoom() {
   // This is for state of short message received with the file
   const [short, setShort] = useState({});
 
+  //
+  const [chatInput, setChatInput] = useState(false);
+
+  const [open, setOpen] = useState(true);
+
   //refs
   var peerRef = React.useRef();
   var hiddenFileInput = React.useRef(null);
@@ -101,7 +106,7 @@ function JoinedRoom() {
       console.log(senderData);
       socket.emit("send_message", senderData);
       setMessagesList([...messageList, messageData]);
-      messagebox.current.scrollIntoView({ behaviour: "smooth" });
+      // messagebox.current.scrollIntoView({ behaviour: "smooth" });
       setMess("");
     }
   };
@@ -150,7 +155,7 @@ function JoinedRoom() {
     socket.on("receive_message", (data) => {
       console.log(data);
       setMessagesList((messageList) => [...messageList, data]);
-      messagebox.current.scrollIntoView({ behaviour: "smooth" });
+      // messagebox.current.scrollIntoView({ behaviour: "smooth" });
     });
 
     socket.on("others-joined", (data) => {
@@ -335,8 +340,23 @@ function JoinedRoom() {
     <div className="normal-container">
       {userCount > 1 ? (
         <>
-          <MessageArea messageList={messageList} messagebox={messagebox} />
-          <ChatButton mess={mess} setMess={setMess} sendMessage={sendMessage} />
+          <MessageArea
+            open={open}
+            setOpen={setOpen}
+            messageList={messageList}
+            messagebox={messagebox}
+            chatInput={chatInput}
+            setChatInput={setChatInput}
+          />
+          <ChatButton
+            mess={mess}
+            open={open}
+            setOpen={setOpen}
+            setMess={setMess}
+            sendMessage={sendMessage}
+            chatInput={chatInput}
+            setChatInput={setChatInput}
+          />
         </>
       ) : (
         <div></div>
@@ -555,9 +575,14 @@ function JoinedRoom() {
 
 export default JoinedRoom;
 
-const MessageArea = ({ messageList, messagebox }) => {
-  return (
+const MessageArea = ({ messageList, messagebox, chatInput, setChatInput }) => {
+  return chatInput === false ? (
+    <div></div>
+  ) : (
     <div className="message-area">
+      <div onClick={() => setChatInput(false)} className="close-popup">
+        X
+      </div>
       <div style={{ padding: 10, textAlign: "center" }}>Message Box</div>
       {messageList.map(function (message, idx) {
         return (
@@ -585,14 +610,25 @@ const MessageArea = ({ messageList, messagebox }) => {
   );
 };
 
-const ChatButton = ({ mess, setMess, sendMessage }) => {
-  const [chatInput, setChatInput] = useState(false);
-
+const ChatButton = ({
+  mess,
+  setMess,
+  sendMessage,
+  chatInput,
+  setChatInput,
+  open,
+  setOpen,
+}) => {
   return (
     <div
       className={chatInput === false ? "float-button" : "float-button-active"}
     >
       <input
+        onKeyDown={(e) => {
+          if (e.code === "Enter") {
+            sendMessage();
+          }
+        }}
         value={mess}
         onChange={(event) => setMess(event.target.value)}
         placeholder="Message"
@@ -617,7 +653,10 @@ const ChatButton = ({ mess, setMess, sendMessage }) => {
             console.log(mess);
             sendMessage();
             setChatInput(false);
-          } else setChatInput(true);
+          } else {
+            setChatInput(true);
+            if (open === false) setOpen(true);
+          }
         }}
         alt="chat-button"
       />

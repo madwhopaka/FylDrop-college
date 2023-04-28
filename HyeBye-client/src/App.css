@@ -29,11 +29,14 @@
   word-break: break-word;
 }
 
+.close-popup {
+  display: none;
+}
+
 .message-area {
   position: absolute;
   display: flex;
-  /* -ms-overflow-style: none; IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  box-shadow: 4px 8px slateblue;
   width: 25%;
   border-radius: 20px;
   flex-direction: column;
@@ -43,10 +46,6 @@
   left: 10px;
   top: 150px;
   border: 1px solid slateblue;
-}
-
-.message-area::-webkit-scrollbar {
-  display: none;
 }
 
 .float-button {
@@ -608,8 +607,42 @@
   .App {
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
+    overflow-y: none;
   }
+
+  .close-popup {
+    display: flex;
+    font-size: 14px;
+    position: fixed;
+    font-weight: 700;
+    color: blueviolet;
+    padding: 1rem;
+    cursor: "pointer";
+    text-align: "end";
+  }
+
+  .message-area {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 8px slateblue;
+    z-index: 2;
+    /* -ms-overflow-style: none; IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    width: 90%;
+    border-radius: 20px;
+    flex-direction: column;
+    padding: 10;
+    background-color: white;
+    height: 70%;
+    overflow-y: scroll;
+    left: 20px;
+    top: 7rem;
+  }
+
+  /* .message-area::-webkit-scrollbar {
+    display: none;
+  } */
 
   .float-button {
     position: absolute;
@@ -642,6 +675,10 @@
     height: 40px;
     border-radius: 10px;
     transition: 0.2s ease;
+  }
+
+  .float-button-active:focus {
+    background-color: pink;
   }
 
   .icon {
