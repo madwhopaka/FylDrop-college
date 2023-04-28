@@ -16,7 +16,7 @@ import avatar from "../images/avatar.png";
 import plane from "../images/plane.png";
 import cancel from "../images/cancel.png";
 import { WhatsappIcon, WhatsappShareButton } from "react-share";
-import { recomposeColor } from "@mui/material";
+import { colorSelect } from "../Compo/color";
 
 function JoinedRoom() {
   const worker = new Worker("../worker.js");
@@ -30,15 +30,25 @@ function JoinedRoom() {
   const nav = useNavigate();
   const [peerList, setPeerList] = useState([]);
   const [userCount, setUserCount] = useState(users.value.count);
+
+  // THis messageList is for maintaining the state of all messages
   const [messageList, setMessagesList] = useState([]);
-  const [copyText, setCopyText] = useState(false);
+
+  // This mess is the state of the message input field
+  const [mess, setMess] = useState("");
+
+  // This message variable is for state of short message that we are gonna send during sending file
   const [message, setMessage] = useState("");
+
+  // This is for state of short message received with the file
   const [short, setShort] = useState({});
 
   //refs
   var peerRef = React.useRef();
   var hiddenFileInput = React.useRef(null);
-  const peersRef = React.useRef([]);
+  const messagebox = React.createRef();
+
+  // const peersRef = React.useRef([]);
   const fileNameRef = React.useRef("");
 
   // files ;
@@ -65,6 +75,34 @@ function JoinedRoom() {
     if (gotFile === false) {
       console.log("hi");
       await hiddenFileInput.current.click();
+    }
+  };
+
+  const bagcolor = colorSelect();
+
+  const sendMessage = () => {
+    if (mess !== "") {
+      const messageData = {
+        message: mess,
+        side: "right",
+        from: "you",
+        color: bagcolor,
+      };
+
+      console.log("message data", messageData);
+
+      const senderData = {
+        message: mess,
+        side: "left",
+        from: user.value.username,
+        color: "",
+        room: roomcode.value.code,
+      };
+      console.log(senderData);
+      socket.emit("send_message", senderData);
+      setMessagesList([...messageList, messageData]);
+      messagebox.current.scrollIntoView({ behaviour: "smooth" });
+      setMess("");
     }
   };
 
@@ -101,14 +139,18 @@ function JoinedRoom() {
       setPeers(payload.users);
     });
 
-    // socket.emit("send_message", "Hello whatsup?");
-
     socket.on("receive-file", (data) => {
       setFile(null);
       setGotFile(true);
       console.log("Do you want to receive the file", data);
       setShort(data.message);
       setReceived({ file: data.file, fileName: data.fileName });
+    });
+
+    socket.on("receive_message", (data) => {
+      console.log(data);
+      setMessagesList((messageList) => [...messageList, data]);
+      messagebox.current.scrollIntoView({ behaviour: "smooth" });
     });
 
     socket.on("others-joined", (data) => {
@@ -179,15 +221,15 @@ function JoinedRoom() {
   //     trickle: false,
   //   });
 
-  //   // peer.on("signal", (signal) => {
-  //   //   socket.emit("sending signal", {
-  //   //     userToSignal,
-  //   //     callerID,
-  //   //     signal,
-  //   //   });
-  //   // });
+  //   peer.on("signal", (signal) => {
+  //     socket.emit("sending signal", {
+  //       userToSignal,
+  //       callerID,
+  //       signal,
+  //     });
+  //   });
 
-  //   // peer.on("data", handleReceivingData);
+  //   peer.on("data", handleReceivingData);
 
   //   return peer;
   // }
@@ -243,12 +285,14 @@ function JoinedRoom() {
     console.log("upload file", file, desc);
     const message = { desc: desc, sender: userName };
     socket.emit("upload", file, file.name, message, (status) => {
+      alert(` ${file.name} File Sent successfully`);
       console.log(status);
       setFile(null);
       dispatch(setLoading({ loadingvalue: false, loadingtext: "" }));
     });
   };
 
+  //  download() ;
   // function sendFile() {
   //   const peer = peerRef.current;
   //   const stream = file.stream();
@@ -271,6 +315,8 @@ function JoinedRoom() {
   //   }
   // }
 
+  // sendFile() ;
+
   const downloadFile = () => {
     const fileBlob = new Blob([receivedFile.file], {
       type: "application/octet-stream",
@@ -280,13 +326,21 @@ function JoinedRoom() {
     downloadLink.href = fileUrl;
     downloadLink.download = receivedFile.fileName;
     downloadLink.click();
+    alert(` ${receivedFile}} File received successfully`);
     setGotFile(false);
     setReceived({});
   };
 
   return (
     <div className="normal-container">
-      <ChatButton message={message} setMessage={setMessage} />
+      {userCount > 1 ? (
+        <>
+          <MessageArea messageList={messageList} messagebox={messagebox} />
+          <ChatButton mess={mess} setMess={setMess} sendMessage={sendMessage} />
+        </>
+      ) : (
+        <div></div>
+      )}
       <RoomDetails roomcode={roomcode} copy={copy} />
       {
         <div
@@ -501,7 +555,37 @@ function JoinedRoom() {
 
 export default JoinedRoom;
 
-const ChatButton = ({ message, setMessage }) => {
+const MessageArea = ({ messageList, messagebox }) => {
+  return (
+    <div className="message-area">
+      <div style={{ padding: 10, textAlign: "center" }}>Message Box</div>
+      {messageList.map(function (message, idx) {
+        return (
+          <div
+            style={{ marginRight: "10px" }}
+            key={idx}
+            className={message.side}
+          >
+            {message.side === "middle" ? (
+              <div>{message.message}</div>
+            ) : (
+              <div
+                className="messageBox"
+                style={{ backgroundColor: message.color }}
+              >
+                {message.message}
+              </div>
+            )}
+            <p style={{ color: "grey", fontWeight: "bold" }}>{message.from}</p>
+          </div>
+        );
+      })}
+      <div ref={messagebox}></div>
+    </div>
+  );
+};
+
+const ChatButton = ({ mess, setMess, sendMessage }) => {
   const [chatInput, setChatInput] = useState(false);
 
   return (
@@ -509,8 +593,8 @@ const ChatButton = ({ message, setMessage }) => {
       className={chatInput === false ? "float-button" : "float-button-active"}
     >
       <input
-        value={message}
-        onChange={(event) => setMessage(event.target.value)}
+        value={mess}
+        onChange={(event) => setMess(event.target.value)}
         placeholder="Message"
         style={{
           display: chatInput === true ? "flex" : "none",
@@ -530,9 +614,9 @@ const ChatButton = ({ message, setMessage }) => {
         width={30}
         onClick={() => {
           if (chatInput === true) {
-            console.log(message);
+            console.log(mess);
+            sendMessage();
             setChatInput(false);
-            setMessage("");
           } else setChatInput(true);
         }}
         alt="chat-button"
