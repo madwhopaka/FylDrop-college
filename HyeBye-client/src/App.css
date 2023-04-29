@@ -1,3 +1,7 @@
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .App {
   display: flex;
   font-family: "Poppins", sans-serif;
@@ -5,6 +9,83 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
+}
+
+*:focus {
+  outline: none;
+}
+
+.left {
+  display: flex;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  align-content: center;
+  align-items: center;
+  text-align: center;
+  float: left;
+  clear: both;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.close-popup {
+  display: none;
+}
+
+.message-area {
+  position: absolute;
+  display: flex;
+  box-shadow: 4px 8px slateblue;
+  width: 25%;
+  border-radius: 20px;
+  flex-direction: column;
+  padding: 10;
+  height: 70%;
+  overflow-y: auto;
+  left: 10px;
+  top: 150px;
+  border: 1px solid slateblue;
+}
+
+.float-button {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  bottom: 100px;
+  right: 100px;
+  width: 50px;
+  cursor: pointer;
+  height: 50px;
+  border-radius: 100%;
+  border: 2px solid slateblue;
+  transition: 0.1s ease;
+}
+
+.float-button-active {
+  width: 350px;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  bottom: 100px;
+  right: 100px;
+  cursor: pointer;
+  border: 2px solid slateblue;
+  transition: 0.5s all ease-in;
+  height: 50px;
+  border-radius: 15px;
+  background-color: white;
+  transition: 0.1s ease;
+}
+
+#plane {
+  user-select: none;
+}
+
+#plane:focus {
+  outline: none;
 }
 
 .icon {
@@ -17,8 +98,8 @@
   position: absolute;
   justify-content: center;
   align-items: center;
-  height: 40%;
   border: 0.1rem solid #575757;
+  padding: 10px 30px;
   box-shadow: 5px 10px slateblue;
   border-radius: 15px;
   background-color: white;
@@ -232,6 +313,22 @@
   text-align: center;
 }
 
+.desc-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 250px;
+  margin-top: 20px;
+  padding: 10px 10px;
+  outline: none;
+  border: 2px solid grey;
+  border-radius: 15px;
+  box-shadow: 2px slateblue;
+  font-size: 15px;
+  font-family: "Poppins", sans-serif;
+  text-align: left;
+}
+
 .create-button {
   margin-top: 30px;
   padding: 10px;
@@ -394,6 +491,8 @@
 }
 
 .normal-container {
+  height: 100vh !important;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -424,8 +523,8 @@
   .popup {
     position: absolute;
     justify-content: center;
+    padding: 10px 30px;
     align-items: center;
-    height: 40%;
     border: 0.1rem solid #575757;
     box-shadow: 3px 8px slateblue;
     border-radius: 15px;
@@ -508,7 +607,78 @@
   .App {
     width: 100vw;
     height: 100vh;
-    overflow: hidden;
+    overflow-y: none;
+  }
+
+  .close-popup {
+    display: flex;
+    font-size: 14px;
+    position: fixed;
+    font-weight: 700;
+    color: blueviolet;
+    padding: 1rem;
+    cursor: "pointer";
+    text-align: "end";
+  }
+
+  .message-area {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 8px slateblue;
+    z-index: 2;
+    /* -ms-overflow-style: none; IE and Edge */
+    scrollbar-width: none; /* Firefox */
+    width: 90%;
+    border-radius: 20px;
+    flex-direction: column;
+    padding: 10;
+    background-color: white;
+    height: 70%;
+    overflow-y: scroll;
+    left: 20px;
+    top: 7rem;
+  }
+
+  /* .message-area::-webkit-scrollbar {
+    display: none;
+  } */
+
+  .float-button {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 40px;
+    right: 70px;
+    user-select: none;
+    width: 40px;
+    cursor: pointer;
+    height: 40px;
+    border-radius: 100%;
+    border: 2px solid slateblue;
+    transition: 0.2s ease;
+  }
+
+  .float-button-active {
+    width: 300px;
+    user-select: none;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    bottom: 40px;
+    right: 50px;
+    cursor: pointer;
+    border: 2px solid slateblue;
+    transition: 0.5s all ease-in;
+    height: 40px;
+    border-radius: 10px;
+    transition: 0.2s ease;
+  }
+
+  .float-button-active:focus {
+    background-color: pink;
   }
 
   .icon {
@@ -520,7 +690,7 @@
     position: absolute;
     justify-content: center;
     align-items: center;
-    height: 40%;
+    padding: 10px 30px;
     border: 0.1rem solid #575757;
     box-shadow: 4px 8px slateblue;
     border-radius: 15px;
@@ -627,6 +797,14 @@
     margin-bottom: 10px;
   }
 
+  .desc-input {
+    width: 250px;
+    border: 1px solid grey;
+    font-size: 17px;
+    color: rgb(75, 69, 69);
+    margin-bottom: 10px;
+  }
+
   .create-button {
     border-radius: 20px;
     padding: 10px;
@@ -673,6 +851,7 @@
   }
 
   .normal-container {
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
