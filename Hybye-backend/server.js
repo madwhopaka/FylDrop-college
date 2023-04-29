@@ -50,6 +50,7 @@ var rooms = [];
 var roomObj = [];
 const usersp = {};
 const socketToRoom = {};
+
 console.log(process.env.ALLOWED_CLIENTS.split(","));
 const io = new Server(server, {
   maxHttpBufferSize: 1e8,
@@ -63,6 +64,7 @@ io.on("connection", (socket) => {
   socket.on("join-room", (data) => {
     users[socket.id] = data.username;
     userroom[socket.id] = data.code;
+    colors[socket.id] = colorArray[Math.floor(Math.random() * leng)];
     if (usersp[data.code]) {
       const length = usersp[data.code].length;
       usersp[data.code].push(socket.id);
@@ -92,14 +94,22 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("upload", (file, fileName, callback) => {
-    console.log(file, fileName); // <Buffer 25 50 44 ...>
-
+  socket.on("upload", (file, fileName, message, callback) => {
+    console.log(file, fileName, message); // <Buffer 25 50 44 ...>
     // save the content to the disk, for example
     writeFile("/tmp/upload", file, (err) => {
       callback({ message: err ? "failure" : "success" });
-      socket.broadcast.emit("receive-file", { file, fileName });
+      socket.broadcast.emit("receive-flying-messages", message);
+      socket.broadcast.emit("receive-file", { file, fileName, message });
     });
+  });
+
+  socket.on("send_message", (data) => {
+    console.log(colors[socket.id]);
+    data.color = colors[socket.id];
+    data.from = users[socket.id];
+    console.log(data);
+    socket.to(`room${data.room}`).emit("receive_message", data);
   });
 
   socket.on("sending signal", (payload) => {
